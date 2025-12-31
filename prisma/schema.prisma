@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExperienceLevel {
+  FRESHER
+  JUNIOR
+  MID
+  SENIOR
+}
+
+enum JobRole {
+  SDE
+  FRONTEND
+  BACKEND
+  FULLSTACK
+  DATA_ANALYST
+  DATA_SCIENTIST
+  ML_ENGINEER
+}
+
+enum PointSourceType {
+  DAILY_TASK
+  ROLE_BASED
+  MISC
+}
+
+model User {
+  id        String @id @default(cuid())
+  clerkId   String @unique
+
+  username  String? @unique
+  fullName  String?
+  email     String? @unique
+
+  collegeName String?
+  state       String?
+  experience  String?
+
+  timezone String @default("Asia/Kolkata")
+
+  githubUrl   String?
+  linkedinUrl String?
+  resumeUrl   String?
+
+  totalPoints Int @default(0)
+
+  isSubscribed Boolean @default(false)
+  isActive     Boolean @default(true)
+
+  roles        UserRole[]
+  dailyTasks   DailyTask[]
+  pointTxns    PointTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model UserRole {
+  id     String  @id @default(cuid())
+  userId String
+  role   JobRole
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@index([role])
+}
+
+model DailyTask {
+  id     String @id @default(cuid())
+  userId String
+
+  tasks Json
+
+  pointsEarned Int @default(0)
+
+  date DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([date])
+}
+
+model PointTransaction {
+  id        String @id @default(cuid())
+  userId    String
+
+  source    PointSourceType
+  sourceId  String
+
+  points    Int
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, source, sourceId])
+  @@index([source])
+}
