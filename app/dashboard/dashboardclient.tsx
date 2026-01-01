@@ -605,27 +605,37 @@ function ProfileLinkCard({ username }: { username: string | null }) {
       </div>
 
       {profileUrl ? (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <div className="flex-1 px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
-            <p className="text-sm text-blue-400 font-mono truncate break-all">{profileUrl}</p>
-          </div>
-          <button
-            onClick={copyToClipboard}
-            className="px-4 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center justify-center sm:w-auto"
-            title="Copy to clipboard"
-          >
-            {copied ? (
-              <FaCircleCheck className="text-white" size={18} />
-            ) : (
-              <FaCopy className="text-white" size={18} />
-            )}
-          </button>
-        </div>
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+    <div className="flex-1 px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
+      <p className="text-sm text-blue-400 font-mono truncate break-all">
+        {profileUrl.replace(/^https?:\/\//, '').replace(/^www\./, '')}
+      </p>
+    </div>
+
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(profileUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="px-4 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center justify-center"
+      title="Copy full URL"
+    >
+      {copied ? (
+        <FaCircleCheck className="text-white" size={18} />
       ) : (
-        <div className="px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg">
-          <p className="text-sm text-gray-500 italic">Set a username to get your profile link</p>
-        </div>
+        <FaCopy className="text-white" size={18} />
       )}
+    </button>
+  </div>
+) : (
+  <div className="px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg">
+    <p className="text-xs text-gray-500 italic">
+      Set a username to get your profile link
+    </p>
+  </div>
+)}
+
     </div>
   );
 }
