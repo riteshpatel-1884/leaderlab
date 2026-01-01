@@ -28,6 +28,8 @@ export async function PATCH(request: NextRequest) {
       updateData.username = body.username;
     }
     
+    if (body.fullName !== undefined) updateData.fullName = body.fullName;
+    if (body.email !== undefined) updateData.email = body.email;
     if (body.collegeName !== undefined) updateData.collegeName = body.collegeName;
     if (body.state !== undefined) updateData.state = body.state;
     if (body.experience !== undefined) updateData.experience = body.experience;
