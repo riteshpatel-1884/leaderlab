@@ -732,7 +732,7 @@ export default function DashboardClient({ user }: { user: User }) {
         }} />
       </div>
 
-      <div className="relative container mx-auto max-w-7xl px-6 py-8">
+      <div className="relative container mx-auto max-w-7xl pt-24 px-6 py-8">
         {/* Hero Header */}
         <div className="mb-10">
           <div className="flex flex-col md:flex-row items-start justify-between mb-6 gap-4">
