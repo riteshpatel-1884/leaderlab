@@ -54,9 +54,10 @@ interface EditableFieldProps {
   field: string;
   icon: React.ElementType;
   onSave: (field: string, value: string) => Promise<void>;
+  isUrl?: boolean;
 }
 
-function EditableField({ label, value, field, icon: Icon, onSave }: EditableFieldProps) {
+function EditableField({ label, value, field, icon: Icon, onSave, isUrl = false }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -78,19 +79,44 @@ function EditableField({ label, value, field, icon: Icon, onSave }: EditableFiel
     setIsEditing(false);
   };
 
+  const getDisplayValue = () => {
+    if (!value) return <span className="text-gray-600 italic">Not set</span>;
+    
+    if (isUrl) {
+      // Show "Open [Platform]" instead of full URL
+      const platformName = label.replace(' URL', '');
+      return (
+        <a 
+          href={value} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Open {platformName}
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      );
+    }
+    
+    return value;
+  };
+
   return (
     <div className="group relative bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-5 hover:border-blue-500/50 transition-all duration-300">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center group-hover:from-blue-500/30 group-hover:to-blue-600/30 transition-all">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center group-hover:from-blue-500/30 group-hover:to-blue-600/30 transition-all flex-shrink-0">
             <Icon className="text-blue-400" size={20} />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">{label}</p>
             {!isEditing && (
-              <p className="text-base font-semibold text-white mt-0.5">
-                {value || <span className="text-gray-600 italic">Not set</span>}
-              </p>
+              <div className="text-base font-semibold text-white mt-0.5 truncate">
+                {getDisplayValue()}
+              </div>
             )}
           </div>
         </div>
@@ -98,12 +124,12 @@ function EditableField({ label, value, field, icon: Icon, onSave }: EditableFiel
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-all"
+            className="p-2 hover:bg-gray-800 rounded-lg transition-all flex-shrink-0 ml-2"
           >
             <FaPencil className="text-gray-400 hover:text-blue-400" size={14} />
           </button>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-shrink-0 ml-2">
             <button
               onClick={handleSave}
               disabled={isSaving}
@@ -605,37 +631,27 @@ function ProfileLinkCard({ username }: { username: string | null }) {
       </div>
 
       {profileUrl ? (
-  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-    <div className="flex-1 px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
-      <p className="text-sm text-blue-400 font-mono truncate break-all">
-        {profileUrl.replace(/^https?:\/\//, '').replace(/^www\./, '')}
-      </p>
-    </div>
-
-    <button
-      onClick={() => {
-        navigator.clipboard.writeText(profileUrl);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }}
-      className="px-4 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center justify-center"
-      title="Copy full URL"
-    >
-      {copied ? (
-        <FaCircleCheck className="text-white" size={18} />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="flex-1 px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
+            <p className="text-xs text-blue-400 font-mono truncate break-all">{profileUrl}</p>
+          </div>
+          <button
+            onClick={copyToClipboard}
+            className="px-4 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center justify-center sm:w-auto"
+            title="Copy to clipboard"
+          >
+            {copied ? (
+              <FaCircleCheck className="text-white" size={18} />
+            ) : (
+              <FaCopy className="text-white" size={18} />
+            )}
+          </button>
+        </div>
       ) : (
-        <FaCopy className="text-white" size={18} />
+        <div className="px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg">
+          <p className="text-sm text-gray-500 italic">Set a username to get your profile link</p>
+        </div>
       )}
-    </button>
-  </div>
-) : (
-  <div className="px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg">
-    <p className="text-xs text-gray-500 italic">
-      Set a username to get your profile link
-    </p>
-  </div>
-)}
-
     </div>
   );
 }
@@ -742,7 +758,7 @@ export default function DashboardClient({ user }: { user: User }) {
         }} />
       </div>
 
-      <div className="relative container mx-auto max-w-7xl pt-24 px-6 py-8">
+      <div className="relative container mx-auto pt-24 max-w-7xl px-6 py-8">
         {/* Hero Header */}
         <div className="mb-10">
           <div className="flex flex-col md:flex-row items-start justify-between mb-6 gap-4">
@@ -906,6 +922,7 @@ export default function DashboardClient({ user }: { user: User }) {
               field="githubUrl"
               icon={FaGithub}
               onSave={handleSave}
+              isUrl={true}
             />
 
             <EditableField
@@ -914,6 +931,7 @@ export default function DashboardClient({ user }: { user: User }) {
               field="linkedinUrl"
               icon={FaLinkedin}
               onSave={handleSave}
+              isUrl={true}
             />
 
             <EditableField
@@ -922,6 +940,7 @@ export default function DashboardClient({ user }: { user: User }) {
               field="resumeUrl"
               icon={FaLink}
               onSave={handleSave}
+              isUrl={true}
             />
           </div>
         </div>
