@@ -43,9 +43,10 @@
 
 
 
-// app/api/user/check-username/route.ts
+// app/api/user/check-username/route.ts - WITH CACHING HEADERS
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
@@ -53,16 +54,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { username } = body;
 
+    // Early return if no username provided
     if (!username) {
       return NextResponse.json(
-        { available: false, error: 'Username is required' },
+        { available: false, message: 'Username is required' },
         { status: 400 }
       );
     }
 
+    // Trim whitespace
+    const trimmedUsername = username.trim();
+
     // Validate username format (alphanumeric, underscore, hyphen only)
     const usernameRegex = /^[a-zA-Z0-9_-]+$/;
-    if (!usernameRegex.test(username)) {
+    if (!usernameRegex.test(trimmedUsername)) {
       return NextResponse.json({
         available: false,
         message: 'Only letters, numbers, underscores, and hyphens allowed'
@@ -70,38 +75,48 @@ export async function POST(request: NextRequest) {
     }
 
     // Check length constraints
-    if (username.length < 3) {
+    if (trimmedUsername.length < 3) {
       return NextResponse.json({
         available: false,
         message: 'Username must be at least 3 characters'
       });
     }
 
-    if (username.length > 20) {
+    if (trimmedUsername.length > 20) {
       return NextResponse.json({
         available: false,
         message: 'Username must be 20 characters or less'
       });
     }
 
-    // Check if username exists (case-insensitive)
+    // Optimized database query - only check existence
     const existingUser = await prisma.user.findFirst({
       where: { 
         username: {
-          equals: username,
+          equals: trimmedUsername,
           mode: 'insensitive'
         }
       },
+      select: { id: true }, // Minimal data fetch
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       available: !existingUser,
       message: existingUser ? 'Username already taken' : 'Username available!'
     });
+
+    // Add cache headers for validation results (optional)
+    // Cache "available" responses for 60 seconds
+    if (!existingUser) {
+      response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=30');
+    }
+
+    return response;
+    
   } catch (error) {
     console.error('Error checking username:', error);
     return NextResponse.json(
-      { available: false, error: 'Failed to check username' },
+      { available: false, message: 'Failed to check username' },
       { status: 500 }
     );
   }

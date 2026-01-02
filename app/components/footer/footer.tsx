@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="mb-4 cursor-pointer">
            <div className="flex items-center gap-1">
   <Image
-    src="/logo/logo.png"
+    src="/logo/icon.png"
     alt="Project X logo"
     width={132}
     height={132}
@@ -40,8 +40,8 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/leaderboard" className="hover:text-white transition-colors">
-                  Leaderboard
+                <a href="/2026-goals" className="hover:text-white transition-colors">
+                  2026 Goals
                 </a>
               </li>
               <li>
