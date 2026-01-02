@@ -33,7 +33,8 @@ export default function Navbar() {
   const navLinks = [
     { href: "/2026-goals", label: "2026 Goals", icon: FileText, description: "My Goals of 2026" },
      { href: "/dashboard", label: "Dashboard", icon: FileText, description: "My profile details" },
-      { href: "/my-task", label: "My Task", icon: FileText, description: "My daily tasks" }
+      { href: "/my-commitment", label: "My Commitment", icon: FileText, description: "My daily commitment" },
+      { href: "/where-i-stand", label: "Where I Stand", icon: FileText, description: "Where I stand in the job market" }
   ];
 
   return (

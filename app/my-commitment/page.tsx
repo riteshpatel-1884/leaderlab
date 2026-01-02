@@ -71,7 +71,7 @@ const DailyTaskTracker = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error('Error fetching commitment:', error);
     } finally {
       setLoading(false);
     }
@@ -101,11 +101,11 @@ const DailyTaskTracker = () => {
         setNewTaskText('');
         setIsAddingTask(false);
       } else {
-        alert('Failed to save task');
+        alert('Failed to save commitment');
       }
     } catch (error) {
-      console.error('Error saving task:', error);
-      alert('Failed to save task');
+      console.error('Error saving commitment:', error);
+      alert('Failed to save commitment');
     } finally {
       setLoading(false);
     }
@@ -133,7 +133,7 @@ const DailyTaskTracker = () => {
         setCompletedTasks(newCompleted);
       }
     } catch (error) {
-      console.error('Error deleting task:', error);
+      console.error('Error deleting commitment:', error);
     } finally {
       setLoading(false);
     }
@@ -153,14 +153,14 @@ const DailyTaskTracker = () => {
 
   const handleCompleteAttempt = () => {
     if (tasks.length === 0) {
-      alert('Please create at least one task first!');
+      alert('Please create at least one commitment first!');
       return;
     }
 
     const allTasksCompleted = tasks.length > 0 && tasks.every((task: Task) => completedTasks.has(task.id));
 
     if (!allTasksCompleted) {
-      alert(`Complete all ${tasks.length} tasks to earn ${POINTS_FOR_ALL_COMPLETE} points!`);
+      alert(`Complete all ${tasks.length} commitment to earn ${POINTS_FOR_ALL_COMPLETE} points!`);
       return;
     }
 
@@ -223,10 +223,10 @@ const DailyTaskTracker = () => {
               <h3 className="text-xl font-bold text-yellow-400">Warning!</h3>
             </div>
             <p className="text-gray-300 mb-2">
-              You have only created <span className="font-bold text-yellow-400">{tasks.length} task{tasks.length !== 1 ? 's' : ''}</span> out of {MAX_TASKS} possible tasks.
+              You have only created <span className="font-bold text-yellow-400">{tasks.length} commitment{tasks.length !== 1 ? 's' : ''}</span> out of {MAX_TASKS} possible commitment.
             </p>
             <p className="text-gray-400 mb-6">
-              Once you complete, you <span className="font-bold text-red-400">won't be able to add more tasks</span> until tomorrow. Would you like to continue?
+              Once you complete, you <span className="font-bold text-red-400">won't be able to add more commitment</span> until tomorrow. Would you like to continue?
             </p>
             <div className="flex gap-3">
               <button
@@ -252,7 +252,7 @@ const DailyTaskTracker = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-               Daily Commitment
+               My Today's Commitment
               </h1>
               <p className='text-gray-400 flex items-center gap-2 mb-2'>Small actions today decide who gets ahead tomorrow.</p>
               <p className="text-gray-400 flex items-center gap-2">
@@ -306,7 +306,7 @@ const DailyTaskTracker = () => {
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              {allTasksCompleted ? '🎉 All tasks completed!' : `${Math.round(completionPercentage)}% complete`}
+              {allTasksCompleted ? '🎉 All commitment completed!' : `${Math.round(completionPercentage)}% complete`}
             </p>
           </div>
         )}
@@ -324,7 +324,7 @@ const DailyTaskTracker = () => {
                 className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all disabled:opacity-50"
               >
                 <Plus className="w-4 h-4" />
-                Add Task
+                Add commitment
               </button>
             )}
           </div>
@@ -336,7 +336,7 @@ const DailyTaskTracker = () => {
                 type="text"
                 value={newTaskText}
                 onChange={(e) => setNewTaskText(e.target.value)}
-                placeholder="Enter your task (e.g., Solve 2 DSA problems)"
+                placeholder="Enter your commitment (e.g., Solve 2 DSA problems)"
                 maxLength={100}
                 className="w-full px-4 py-2 bg-gray-800 border border-gray-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none mb-3"
                 onKeyPress={(e) => {
@@ -350,7 +350,7 @@ const DailyTaskTracker = () => {
                   disabled={!newTaskText.trim() || loading}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add Task
+                  Add commitment
                 </button>
                 <button
                   onClick={() => {
@@ -368,23 +368,23 @@ const DailyTaskTracker = () => {
           {/* Tasks */}
           {loading && tasks.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              Loading tasks...
+              Loading commitments...
             </div>
           ) : tasks.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gray-700/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-8 h-8 text-gray-500" />
               </div>
-              <p className="text-gray-300 font-medium mb-2">No tasks yet</p>
+              <p className="text-gray-300 font-medium mb-2">No commitments yet</p>
               <p className="text-gray-500 text-sm mb-4">
-                Create up to {MAX_TASKS} tasks for today
+                Create up to {MAX_TASKS} commitments for today
               </p>
               {!todayTasksData?.allCompleted && (
                 <button
                   onClick={() => setIsAddingTask(true)}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-all"
                 >
-                  Create Your First Task
+                  Create Your First commitment
                 </button>
               )}
             </div>
@@ -456,7 +456,7 @@ const DailyTaskTracker = () => {
                   <Save className="w-5 h-5" />
                   {allTasksCompleted 
                     ? `Complete & Earn ${POINTS_FOR_ALL_COMPLETE} Points` 
-                    : `Complete All Tasks to Earn ${POINTS_FOR_ALL_COMPLETE} Points`
+                    : `Complete All commitments to Earn ${POINTS_FOR_ALL_COMPLETE} Points`
                   }
                 </button>
               )}
@@ -467,8 +467,8 @@ const DailyTaskTracker = () => {
         {/* Info Footer */}
         <div className="mt-6 bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-xl p-4 border border-blue-500/30">
           <p className="text-sm text-blue-200">
-            <span className="font-semibold">💡 Rules:</span> Create up to {MAX_TASKS} tasks daily. 
-            You must complete <span className="font-bold">ALL tasks</span> to earn {POINTS_FOR_ALL_COMPLETE} points. 
+            <span className="font-semibold">💡 Rules:</span> Create up to {MAX_TASKS} commitments daily. 
+            You must complete <span className="font-bold">ALL commitments</span> to earn {POINTS_FOR_ALL_COMPLETE} points. 
             Partial completion earns no points!
           </p>
         </div>

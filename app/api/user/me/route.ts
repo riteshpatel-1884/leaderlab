@@ -1,58 +1,66 @@
-// // app/api/user/me/route.ts
-// import { NextResponse } from 'next/server';
-// import { requireUser } from '@/lib/auth';
-
-// export async function GET() {
-//   try {
-//     const user = await requireUser();
-    
-//     return NextResponse.json({
-//       totalPoints: user.totalPoints,
-//       isSubscribed: user.isSubscribed,
-//       collegeName: user.collegeName,
-//       email: user.email,
-//       fullName: user.fullName,
-//     });
-//   } catch (error) {
-//     return NextResponse.json(
-//       { error: 'Unauthorized' },
-//       { status: 401 }
-//     );
-//   }
-// }
-
-
 // app/api/user/me/route.ts
-import { NextResponse } from 'next/server';
-import { requireUser } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { getAuth } from '@clerk/nextjs/server';
 
-export async function GET() {
+const prisma = new PrismaClient();
+
+export async function GET(request: NextRequest) {
   try {
-    const user = await requireUser();
-    
-    return NextResponse.json({
-      totalPoints: user.totalPoints || 0,
-      isSubscribed: user.isSubscribed || false,
-      collegeName: user.collegeName,
-      email: user.email,
-      fullName: user.fullName,
-      username: user.username,
-      id: user.id,
-    });
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    
-    // Check if it's an authentication error or other error
-    if (error instanceof Error && error.message === 'Unauthorized') {
+    const { userId } = getAuth(request);
+
+    if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
-    
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        roles: {
+          select: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const transformedUser = {
+      id: user.id,
+      username: user.username,
+      fullName: user.fullName,
+      email: user.email,
+      collegeName: user.collegeName,
+      state: user.state,
+      experience: user.experience,
+      totalPoints: user.totalPoints,
+      roles: user.roles.map((r) => r.role),
+      githubUrl: user.githubUrl || undefined,
+      linkedinUrl: user.linkedinUrl || undefined,
+      resumeUrl: user.resumeUrl || undefined,
+      isSubscribed: user.isSubscribed,
+      isActive: user.isActive,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
+
+    return NextResponse.json(transformedUser);
+  } catch (error) {
+    console.error('Error fetching current user:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch user data' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }
