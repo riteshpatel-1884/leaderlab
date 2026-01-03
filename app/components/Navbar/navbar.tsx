@@ -34,7 +34,8 @@ export default function Navbar() {
     { href: "/2026-goals", label: "2026 Goals", icon: FileText, description: "My Goals of 2026" },
      { href: "/dashboard", label: "Dashboard", icon: FileText, description: "My profile details" },
       { href: "/my-commitment", label: "My Commitment", icon: FileText, description: "My daily commitment" },
-      { href: "/where-i-stand", label: "Where I Stand", icon: FileText, description: "Where I stand in the job market" }
+       { href: "/technical-area", label: "Technical Area", icon: FileText, description: "My technical Expertise" },
+       { href: "/where-i-stand", label: "Where I Stand", icon: FileText, description: "Where I stand in the job market" },
   ];
 
   return (

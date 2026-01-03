@@ -49,11 +49,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Calculate points based on difficulty
+    // Calculate points based on difficulty - UPDATED POINTS
     const pointsMap = {
       EASY: 1,
-      MEDIUM: 1.5,
-      HARD: 2,
+      MEDIUM: 2,    // Changed from 1.5 to 2
+      HARD: 3,      // Changed from 2 to 3
     };
     const pointsEarned = pointsMap[difficulty as keyof typeof pointsMap] || 0;
 
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       const updatedUser = await tx.user.update({
         where: { id: user.id },
         data: {
-          totalPoints: { increment: pointsEarned },    // ← ADDED: Add to overall total
+          totalPoints: { increment: pointsEarned },    // Add to overall total
           subjectPoints: { increment: pointsEarned },  // Subject questions total
           [fieldName]: { increment: pointsEarned },    // Individual subject
         },

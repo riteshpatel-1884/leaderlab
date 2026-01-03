@@ -71,10 +71,10 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-400 text-sm">
-            © 2025 LeaderLab. All rights reserved.
+            © 2026 LeaderLab. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <a href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
+            <a href="/privacy-policy" className="text-gray-400 hover:text-white text-sm transition-colors">
               Privacy Policy
             </a>
             <a href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">

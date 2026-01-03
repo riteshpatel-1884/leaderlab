@@ -22,10 +22,10 @@ async function main() {
       data: { subjectPoints: totalSubjectPoints }
     });
     
-    console.log(`✅ Updated user ${user.email}: ${totalSubjectPoints} subject points`);
+    console.log(`Updated user ${user.email}: ${totalSubjectPoints} subject points`);
   }
   
-  console.log('✅ All users updated!');
+  console.log('All users updated!');
 }
 
 main()
