@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,6 +9,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ============================================
+// ENUMS
+// ============================================
 
 enum ExperienceLevel {
   FRESHER
@@ -28,52 +35,80 @@ enum PointSourceType {
   DAILY_TASK
   ROLE_BASED
   MISC
+  SUBJECT_QUESTION  // ← ADDED FOR QUESTION TRACKING
 }
+
+// ← NEW ENUM FOR QUESTION DIFFICULTY
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
+// ← NEW ENUM FOR SUBJECTS
+enum SubjectType {
+  DSA
+  OS
+  CN
+  DBMS
+  HR
+  OOPS
+  SYSTEM_DESIGN
+}
+
+// ============================================
+// MODELS
+// ============================================
 
 model User {
   id        String @id @default(cuid())
   clerkId   String @unique
-
   username  String? @unique
   fullName  String?
   email     String? @unique
-
   collegeName String?
   state       String?
   experience  String?
-
   timezone String @default("Asia/Kolkata")
-
   githubUrl   String?
   linkedinUrl String?
   resumeUrl   String?
-
   totalPoints Int @default(0)
-
-  // --- NEW FIELDS FOR STREAK ---
+  
+  // --- STREAK TRACKING ---
   currentStreak  Int       @default(0)
   lastStreakDate DateTime? 
-  // ---------------------------
+  
+  // --- SUBJECT-SPECIFIC POINTS ---
+  subjectPoints      Int @default(0)  // ← ADD THIS LINE - Total points from all subjects
+  dsaPoints          Int @default(0)
+  osPoints           Int @default(0)
+  cnPoints           Int @default(0)
+  dbmsPoints         Int @default(0)
+  hrPoints           Int @default(0)
+  oopsPoints         Int @default(0)
+  systemDesignPoints Int @default(0)
   
   isSubscribed Boolean @default(false)
   isActive     Boolean @default(true)
-
+  
+  // --- RELATIONS ---
   roles        UserRole[]
   dailyTasks   DailyTask[]
   pointTxns    PointTransaction[]
-
+  solvedQuestions SolvedQuestion[]
+  subjectProgress SubjectProgress[]
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 
 model UserRole {
   id     String  @id @default(cuid())
   userId String
   role   JobRole
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  
   @@unique([userId, role])
   @@index([role])
 }
@@ -81,18 +116,13 @@ model UserRole {
 model DailyTask {
   id     String @id @default(cuid())
   userId String
-
   tasks Json
-
   pointsEarned Int @default(0)
-
   date DateTime
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  
   @@unique([userId, date])
   @@index([date])
 }
@@ -100,16 +130,46 @@ model DailyTask {
 model PointTransaction {
   id        String @id @default(cuid())
   userId    String
-
   source    PointSourceType
   sourceId  String
-
   points    Int
-
+  metadata  Json?
   createdAt DateTime @default(now())
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  
   @@unique([userId, source, sourceId])
   @@index([source])
+}
+
+model SolvedQuestion {
+  id          String @id @default(cuid())
+  userId      String
+  subject     SubjectType
+  questionId  String
+  difficulty  DifficultyLevel
+  pointsEarned Float
+  solvedAt    DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, subject, questionId])
+  @@index([subject])
+  @@index([userId, subject])
+}
+
+model SubjectProgress {
+  id              String @id @default(cuid())
+  userId          String
+  subject         SubjectType
+  totalQuestions  Int @default(0)
+  solvedQuestions Int @default(0)
+  totalPoints     Float @default(0)
+  easyCount       Int @default(0)
+  mediumCount     Int @default(0)
+  hardCount       Int @default(0)
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, subject])
+  @@index([subject])
 }
