@@ -2,133 +2,91 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { getISTDate, getNextDayIST } from '@/lib/date-utils';
 
 const POINTS_FOR_ALL_COMPLETE = 3;
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
-    
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
+    const user = await prisma.user.findUnique({ where: { clerkId: userId } });
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     const body = await request.json();
-    const { tasks, allCompleted } = body;
+    const { tasks } = body;
 
-    if (!Array.isArray(tasks)) {
-      return NextResponse.json(
-        { error: 'Invalid tasks data' },
-        { status: 400 }
-      );
-    }
+    // 1. Timezone Logic
+    const todayIST = getISTDate();
+    const tomorrowIST = getNextDayIST(todayIST);
 
-    if (!allCompleted) {
-      return NextResponse.json(
-        { error: 'All tasks must be completed to earn points' },
-        { status: 400 }
-      );
-    }
-
-    // Get today's date at midnight
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    // Check if daily task already exists for today
+    // 2. Prevent Double Points
     const existingDailyTask = await prisma.dailyTask.findFirst({
-      where: {
-        userId: user.id,
-        date: {
-          gte: today,
-          lt: tomorrow,
-        },
+      where: { 
+        userId: user.id, 
+        date: { gte: todayIST, lt: tomorrowIST } 
       },
     });
 
-    // Check if already completed
     if (existingDailyTask && existingDailyTask.pointsEarned > 0) {
-      return NextResponse.json(
-        { error: 'You have already completed today\'s tasks' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Already earned points for today' }, { status: 400 });
     }
 
-    // Use a transaction to ensure data consistency
+    // 3. Database Transaction
     const result = await prisma.$transaction(async (tx) => {
-      // Create or update daily task record
+      
+      // A. Save the Daily Task (Record that they earned 3 points for THIS specific day)
       const dailyTask = await tx.dailyTask.upsert({
-        where: {
-          userId_date: {
-            userId: user.id,
-            date: today,
-          },
-        },
-        update: {
-          tasks: tasks,
-          pointsEarned: POINTS_FOR_ALL_COMPLETE,
-        },
-        create: {
-          userId: user.id,
-          date: today,
-          tasks: tasks,
-          pointsEarned: POINTS_FOR_ALL_COMPLETE,
-        },
+        where: { userId_date: { userId: user.id, date: todayIST } },
+        update: { tasks: tasks, pointsEarned: POINTS_FOR_ALL_COMPLETE },
+        create: { userId: user.id, date: todayIST, tasks: tasks, pointsEarned: POINTS_FOR_ALL_COMPLETE },
       });
 
-      // Create point transaction
+      // B. Create a History Log (Transaction)
       await tx.pointTransaction.create({
-        data: {
-          userId: user.id,
-          source: 'DAILY_TASK',
-          sourceId: dailyTask.id,
-          points: POINTS_FOR_ALL_COMPLETE,
-        },
+        data: { userId: user.id, source: 'DAILY_TASK', sourceId: dailyTask.id, points: POINTS_FOR_ALL_COMPLETE },
       });
 
-      // Update user's total points
+      // C. Update User's OVERALL Stats (Total Points + Streak)
+      const yesterdayIST = new Date(todayIST);
+      yesterdayIST.setDate(yesterdayIST.getDate() - 1);
+      
+      let newStreak = 1; // Default to 1 (New Streak)
+
+      if (user.lastStreakDate) {
+        const lastStreakTime = new Date(user.lastStreakDate).getTime();
+        const yesterdayTime = yesterdayIST.getTime();
+        const todayTime = todayIST.getTime();
+
+        // If last streak was yesterday, increment (e.g., 5 -> 6)
+        if (lastStreakTime === yesterdayTime) {
+            newStreak = user.currentStreak + 1;
+        } 
+        // If last streak was today (rare case of re-running), keep it
+        else if (lastStreakTime === todayTime) {
+            newStreak = user.currentStreak;
+        }
+        // If last streak was older, it stays 1 (Reset)
+      }
+
+      // Add to TOTAL OVERALL points
       const updatedUser = await tx.user.update({
         where: { id: user.id },
         data: {
-          totalPoints: {
-            increment: POINTS_FOR_ALL_COMPLETE,
-          },
+          totalPoints: { increment: POINTS_FOR_ALL_COMPLETE }, // Adds 3 to existing total
+          currentStreak: newStreak,
+          lastStreakDate: todayIST,
         },
-        select: {
-          totalPoints: true,
-        },
+        select: { totalPoints: true, currentStreak: true },
       });
 
       return updatedUser;
     });
 
-    return NextResponse.json({
-      success: true,
-      pointsEarned: POINTS_FOR_ALL_COMPLETE,
-      totalPoints: result.totalPoints,
-    });
+    return NextResponse.json(result);
   } catch (error) {
-    console.error('Error completing tasks:', error);
-    return NextResponse.json(
-      { error: 'Failed to complete tasks' },
-      { status: 500 }
-    );
+    console.error('Error:', error);
+    return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

@@ -21,8 +21,11 @@ const DailyTaskTracker = () => {
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTaskText, setNewTaskText] = useState('');
+  
+  // State for points and streak
   const [currentStreak, setCurrentStreak] = useState(0);
-  const [totalPoints, setTotalPoints] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0); // This now holds ONLY Commitment Points
+  
   const [loading, setLoading] = useState(false);
   const [todayTasksData, setTodayTasksData] = useState<TodayTasksData | null>(null);
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -47,7 +50,14 @@ const DailyTaskTracker = () => {
       const response = await fetch('/api/user/me');
       if (response.ok) {
         const data = await response.json();
-        setTotalPoints(data.totalPoints || 0);
+        
+        // --- UPDATED LOGIC HERE ---
+        // We use 'totalCommitmentPoints' to show ONLY points from Daily Tasks.
+        // If the backend hasn't calculated it yet, default to 0.
+        setTotalPoints(data.totalCommitmentPoints || 0);
+        
+        // Set the streak from the DB
+        setCurrentStreak(data.currentStreak || 0);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -193,7 +203,17 @@ const DailyTaskTracker = () => {
       if (response.ok) {
         const data = await response.json();
         alert(`🎉 Congratulations! You earned ${POINTS_FOR_ALL_COMPLETE} points!`);
-        setTotalPoints(data.totalPoints);
+        
+        // --- UPDATED LOGIC HERE ---
+        // 1. Update Streak from the server response (it calculates it accurately)
+        setCurrentStreak(data.currentStreak);
+
+        // 2. Update Points Locally:
+        // We simply add 3 to the current number. We do NOT use data.totalPoints here 
+        // because that contains the Global Profile Points, but this specific UI box
+        // is supposed to show only Commitment Points.
+        setTotalPoints(prev => prev + POINTS_FOR_ALL_COMPLETE);
+        
         fetchTodayTasks();
       } else {
         const error = await response.json();
@@ -270,7 +290,7 @@ const DailyTaskTracker = () => {
                   <Trophy className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-blue-300 font-medium">Total Points</p>
+                  <p className="text-sm text-blue-300 font-medium">Commitment Points</p>
                   <p className="text-2xl font-bold text-blue-100">{totalPoints}</p>
                 </div>
               </div>

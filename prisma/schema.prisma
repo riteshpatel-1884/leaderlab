@@ -50,6 +50,11 @@ model User {
 
   totalPoints Int @default(0)
 
+  // --- NEW FIELDS FOR STREAK ---
+  currentStreak  Int       @default(0)
+  lastStreakDate DateTime? 
+  // ---------------------------
+  
   isSubscribed Boolean @default(false)
   isActive     Boolean @default(true)
 
