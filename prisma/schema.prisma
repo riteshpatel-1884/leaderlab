@@ -173,3 +173,16 @@ model SubjectProgress {
   @@unique([userId, subject])
   @@index([subject])
 }
+
+
+
+// Feedback/ feature
+model Feedback {
+  id          String   @id @default(uuid())
+  type        String   // "FEATURE" or "ISSUE"
+  category    String?
+  description String
+  email       String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+}
