@@ -93,7 +93,7 @@ export default function Home() {
         <Navbar/>
 
         {/* Hero Section */}
-        <section className="pt-40 pb-20 px-6 relative">
+        <section className="pt-40 px-6 relative">
           <div className="max-w-6xl mx-auto text-center relative z-10">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10 text-brand-primary text-sm font-bold uppercase tracking-wider mb-8 border border-brand-primary/20 hover:border-brand-primary/40 transition-all cursor-default group">
               <span className="group-hover:tracking-widest transition-all">Confidence without feedback is delusion.</span>
@@ -102,11 +102,11 @@ export default function Home() {
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-8 leading-[1.05]">
               Stop practicing in <br/>
               <span className="relative inline-block">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-purple-500 to-brand-secondary animate-gradient bg-[length:200%_auto]">
+                <span className="text-brand-primary">
                   silence.
                 </span>
                 <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 10C50 2 100 2 198 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-brand-primary/50"/>
+                  <path d="M2 10C50 2 100 2 198 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-brand-primary"/>
                 </svg>
               </span>
             </h1>
@@ -116,40 +116,21 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button className="group px-8 py-5 bg-brand-primary text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-brand-primary/30 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-3">
+             <Link href="/subjects/sql">
+              <button className="group px-8 cursor-pointer py-5 bg-brand-primary text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-brand-primary/30 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-3">
                 Start Free Evaluation
                 <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </button>
-              <button className="group px-8 py-5 bg-surface border-2 border-border-subtle hover:border-brand-primary/50 text-text-primary rounded-2xl font-semibold text-lg hover:bg-bg-secondary transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-3">
+              </button></Link>
+              <Link href="#">
+              <button className="group cursor-pointer px-8 py-5 bg-surface border-2 border-border-subtle hover:border-brand-primary/50 text-text-primary rounded-2xl font-semibold text-lg hover:bg-bg-secondary transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-3">
                 <svg className="w-5 h-5 text-brand-primary group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
                 See Example Report
-              </button>
-            </div>
-
-            <div className="flex items-center justify-center gap-8 mt-12 text-sm text-text-secondary flex-wrap">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                No credit card
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                No signup required
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Results in 60 seconds
-              </div>
+              </button></Link>
             </div>
           </div>
 
@@ -440,7 +421,7 @@ export default function Home() {
                     INSTANT EVALUATION
                   </div> */}
                   <h2 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
-                    Ready to get <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">brutally honest</span> feedback?
+                    Ready to get brutally honest <span className="bg-clip-text text-brand-primary  bg-gradient-to-r from-brand-primary  to-brand-secondary">feedback?</span>
                   </h2>
                   <p className="text-xl text-text-secondary mb-10 max-w-2xl mx-auto leading-relaxed">
                    Better to fail here than in a real interview room.
