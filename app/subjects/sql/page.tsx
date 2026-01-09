@@ -983,8 +983,6 @@
 // }
 
 
-
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -1090,10 +1088,12 @@ export default function SqlPracticePage() {
     if (isMobileDevice()) {
       setPendingQuestion(q);
       setShowMobileWarning(true);
+      document.body.style.overflow = 'hidden';
     } else {
       setSelectedQuestion(q);
       setUserQuery("");
       setFeedback("");
+      document.body.style.overflow = 'hidden';
     }
   };
 
@@ -1113,12 +1113,14 @@ export default function SqlPracticePage() {
   const cancelMobileWarning = () => {
     setShowMobileWarning(false);
     setPendingQuestion(null);
+    document.body.style.overflow = 'auto';
   };
 
   const closeQuestion = () => {
     setSelectedQuestion(null);
     setFeedback("");
     setUserQuery("");
+    document.body.style.overflow = 'auto';
   };
 
   const handleSubmit = async () => {
@@ -1527,7 +1529,7 @@ export default function SqlPracticePage() {
                     className="w-full p-4 flex items-center justify-between bg-gray-50 dark:bg-[#0a0e27] hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      
+                      <span className="text-2xl">📝</span>
                       <h3 className="text-lg font-bold">Problem & Schema</h3>
                     </div>
                     {showProblem ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -1572,7 +1574,7 @@ export default function SqlPracticePage() {
                     className="w-full p-4 flex items-center justify-between bg-white dark:bg-[#0f1629] hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      
+                      <span className="text-2xl">💻</span>
                       <h3 className="text-lg font-bold">Your Query</h3>
                       <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30 px-2 py-1 rounded-full uppercase tracking-wide">SQL</span>
                     </div>
@@ -1662,7 +1664,3 @@ export default function SqlPracticePage() {
     </div>
   );
 }
-
-
-
-
