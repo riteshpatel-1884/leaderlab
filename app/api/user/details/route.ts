@@ -1,23 +1,20 @@
 // app/api/user/details/route.ts
 
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { currentUser } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db';
-
-// Mark this route as dynamic to prevent static generation
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const { userId } = await auth();
+    const clerkUser = await currentUser();
     
-    if (!userId) {
+    if (!clerkUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get or create user in database
     let user = await prisma.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { clerkUserId: clerkUser.id },
       include: {
         summaries: {
           include: {
@@ -28,12 +25,10 @@ export async function GET() {
     });
 
     if (!user) {
-      // If user doesn't exist, create with minimal data
-      // The name will be updated on first proper access
       user = await prisma.user.create({
         data: {
-          clerkUserId: userId,
-          name: 'User',
+          clerkUserId: clerkUser.id,
+          name: clerkUser.firstName || clerkUser.username || 'User',
         },
         include: {
           summaries: {
@@ -73,5 +68,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-  
 }
